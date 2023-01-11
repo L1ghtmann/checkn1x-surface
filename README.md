@@ -34,7 +34,6 @@ Downloads are available under [releases](https://github.com/l1ghtmann/checkn1x-s
 * Add something to the ``VERSION`` variable if you want to redistribute your image, i.e., ``1.0.6-foo``.
 
 ```sh
-sudo apt install -y debootstrap
-sudo apt install -y ca-certificates cpio curl grub2-common grub-efi-amd64-bin grub-pc-bin gzip mtools tar xorriso xz-utils
+sudo apt install -y ca-certificates cpio curl debootstrap grub2-common grub-efi-amd64-bin grub-pc-bin gzip mtools tar xorriso xz-utils
 sudo ./build.sh
 ```
