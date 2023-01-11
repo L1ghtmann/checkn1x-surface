@@ -1,0 +1,9 @@
+#!/usr/bin/env sh
+clear
+cat << !
+Welcome to checkn1x-surface.
+
+Connected USB devices:
+`lsusb | cut -c24-`
+!
+sleep 5
