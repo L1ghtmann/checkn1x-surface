@@ -21,15 +21,24 @@ mkdir -pv work/{rootfs,iso/boot/grub}
 cd work
 
 # build rootfs
+# shoutout linux-surface team
+# for their legendary work
+# https://github.com/linux-surface/linux-surface/wiki/Installation-and-Setup
 debootstrap --arch=amd64 --variant=minbase bullseye rootfs http://ftp.us.debian.org/debian/
 mount -vo bind /dev rootfs/dev
 mount -vt sysfs sysfs rootfs/sys
 mount -vt proc proc rootfs/proc
 cat << ! | chroot rootfs
 echo "mindebian" > /etc/hostname
+apt install -y --no-install-recommends ca-certificates gpg wget
+wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc \
+    | gpg --dearmor | dd of=/etc/apt/trusted.gpg.d/linux-surface.gpg
+echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" \
+	| tee /etc/apt/sources.list.d/linux-surface.list
+apt remove -y ca-certificates gpg wget
 apt update && apt upgrade -y
-apt install -y --no-install-recommends linux-image-amd64 sysvinit-core openrc
-apt install -y --no-install-recommends usbutils usbmuxd libusbmuxd-tools openssh-client sshpass ncurses-base terminfo
+apt install -y --no-install-recommends linux-image-surface linux-headers-surface sysvinit-core openrc
+apt install -y --no-install-recommends libusbmuxd-tools ncurses-base openssh-client sshpass usbutils usbmuxd
 apt clean
 !
 
@@ -49,16 +58,16 @@ ln -sv sbin/init rootfs/init
 cp -av rootfs/boot/vmlinuz-* iso/boot/vmlinuz
 cat << ! > iso/boot/grub/grub.cfg
 insmod all_video
-echo 'checkn1x-surface $VERSION'
+echo 'checkn1x-surface $VERSION by Lightmann'
 echo 'OG script by https://asineth.me'
 echo 'One moment please ....'
-linux /boot/vmlinuz quiet loglevel=3 1
+linux /boot/vmlinuz quiet loglevel=3 3
 initrd /boot/initramfs.xz
 boot
 !
 
 # build custom initramfs
-# ~490 MB -> ~105 MB
+# ~570 MB -> ~140 MB
 pushd rootfs/
 rm -rfv tmp/* boot/* var/cache/* var/lib/apt/lists/* etc/resolv.conf
 find . | cpio -oH newc | xz -C crc32 --x86 -vz9eT$(nproc --all) > ../iso/boot/initramfs.xz

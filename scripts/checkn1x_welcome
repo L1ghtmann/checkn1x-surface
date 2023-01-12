@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 clear
 cat << !
-Welcome to checkn1x.
+Welcome to checkn1x-surface.
 
 Alt+F1 : Welcome
 Alt+F2 : Checkra1n
