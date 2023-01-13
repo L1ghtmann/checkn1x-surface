@@ -21,23 +21,18 @@ mkdir -pv work/{rootfs,iso/boot/grub}
 cd work
 
 # build rootfs
-# shoutout linux-surface team
-# for their legendary work
-# https://github.com/linux-surface/linux-surface/wiki/Installation-and-Setup
+# TODO
+#	 https://github.com/linux-surface/surface-aggregator-module/wiki/Testing-and-Installing
+#	 mount efivarfs on /efi/efivars efivarfs ro,nosuid,nodev,noexec 0 0
+#	 apt install -y --no-install-recommends linux-surface-secureboot-mok
 debootstrap --arch=amd64 --variant=minbase bullseye rootfs http://ftp.us.debian.org/debian/
 mount -vo bind /dev rootfs/dev
 mount -vt sysfs sysfs rootfs/sys
 mount -vt proc proc rootfs/proc
 cat << ! | chroot rootfs
 echo "mindebian" > /etc/hostname
-apt install -y --no-install-recommends ca-certificates gpg wget
-wget -qO - https://raw.githubusercontent.com/linux-surface/linux-surface/master/pkg/keys/surface.asc \
-    | gpg --dearmor | dd of=/etc/apt/trusted.gpg.d/linux-surface.gpg
-echo "deb [arch=amd64] https://pkg.surfacelinux.com/debian release main" \
-	| tee /etc/apt/sources.list.d/linux-surface.list
-apt remove -y ca-certificates gpg wget
 apt update && apt upgrade -y
-apt install -y --no-install-recommends linux-image-surface linux-headers-surface sysvinit-core openrc
+apt install -y --no-install-recommends linux-image-amd64 sysvinit-core openrc
 apt install -y --no-install-recommends libusbmuxd-tools ncurses-base openssh-client sshpass usbutils usbmuxd
 apt clean
 !

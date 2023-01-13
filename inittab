@@ -2,8 +2,4 @@
 init::sysinit:/sbin/openrc sysinit --quiet
 def::wait:/sbin/openrc default --quiet
 tty1::wait:/usr/local/bin/checkn1x_welcome
-tty2::respawn:/usr/local/bin/checkra1n
-tty3::respawn:/usr/local/bin/checkn1x_cliprompt
-tty4::respawn:/usr/sbin/usbmuxd -f
-tty5::respawn:/bin/login -f root
 bail::ctrlaltdel:/sbin/reboot -f
