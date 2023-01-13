@@ -21,6 +21,10 @@ mkdir -pv work/{rootfs,iso/boot/grub}
 cd work
 
 # build rootfs
+# TODO
+#	 https://github.com/linux-surface/surface-aggregator-module/wiki/Testing-and-Installing
+#	 mount efivarfs on /efi/efivars efivarfs ro,nosuid,nodev,noexec 0 0
+#	 apt install -y --no-install-recommends linux-surface-secureboot-mok
 debootstrap --arch=amd64 --variant=minbase bullseye rootfs http://ftp.us.debian.org/debian/
 mount -vo bind /dev rootfs/dev
 mount -vt sysfs sysfs rootfs/sys
@@ -29,7 +33,7 @@ cat << ! | chroot rootfs
 echo "mindebian" > /etc/hostname
 apt update && apt upgrade -y
 apt install -y --no-install-recommends linux-image-amd64 sysvinit-core openrc
-apt install -y --no-install-recommends usbutils usbmuxd libusbmuxd-tools openssh-client sshpass ncurses-base terminfo
+apt install -y --no-install-recommends libusbmuxd-tools ncurses-base openssh-client sshpass usbutils usbmuxd
 apt clean
 !
 
@@ -49,10 +53,10 @@ ln -sv sbin/init rootfs/init
 cp -av rootfs/boot/vmlinuz-* iso/boot/vmlinuz
 cat << ! > iso/boot/grub/grub.cfg
 insmod all_video
-echo 'checkn1x-surface $VERSION'
+echo 'checkn1x-surface $VERSION by Lightmann'
 echo 'OG script by https://asineth.me'
 echo 'One moment please ....'
-linux /boot/vmlinuz quiet loglevel=3 1
+linux /boot/vmlinuz quiet loglevel=3 3
 initrd /boot/initramfs.xz
 boot
 !

@@ -1,7 +1,7 @@
-#!/usr/bin/env sh
+#!/usr/bin/env bash
 clear
 cat << !
-Welcome to checkn1x.
+Welcome to checkn1x-surface.
 
 Alt+F1 : Welcome
 Alt+F2 : Checkra1n
@@ -12,4 +12,40 @@ Alt+F5 : Shell (debug)
 Connected USB devices:
 `lsusb | cut -c24-`
 !
-sleep 5
+
+# Shoutout SO
+# https://askubuntu.com/a/1126732
+# https://stackoverflow.com/a/67920337
+ReadKey() {
+	if read -sN1 KEY; then
+		while read -sN1 -t 0.001; do
+			KEY+="${REPLY}"
+		done
+	fi
+}
+
+declare -a fnkey
+for x in {1..24}; do
+    raw=$(tput kf$x | cat -A)
+    fnkey[$x]=${raw#^[}
+done
+
+while ReadKey; do
+	case "${KEY}" in
+		$'\e'${fnkey[1]})
+			/usr/local/bin/checkn1x_welcome
+			;;
+		$'\e'${fnkey[2]})
+			/usr/local/bin/checkra1n
+			;;
+		$'\e'${fnkey[3]})
+			/usr/local/bin/checkn1x_cliprompt
+			;;
+		$'\e'${fnkey[4]})
+			/usr/sbin/usbmuxd -f
+			;;
+		$'\e'${fnkey[5]})
+			/bin/login -f root
+			;;
+	esac
+done
