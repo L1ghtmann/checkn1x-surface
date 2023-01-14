@@ -23,7 +23,6 @@ cd work
 # build rootfs
 # TODO
 #	 https://github.com/linux-surface/surface-aggregator-module/wiki/Testing-and-Installing
-#	 mount efivarfs on /efi/efivars efivarfs ro,nosuid,nodev,noexec 0 0
 #	 apt install -y --no-install-recommends linux-surface-secureboot-mok
 debootstrap --arch=amd64 --variant=minbase bullseye rootfs http://ftp.us.debian.org/debian/
 mount -vo bind /dev rootfs/dev
@@ -32,7 +31,7 @@ mount -vt proc proc rootfs/proc
 cat << ! | chroot rootfs
 echo "mindebian" > /etc/hostname
 apt update && apt upgrade -y
-apt install -y --no-install-recommends linux-image-amd64 sysvinit-core openrc
+apt install -y --no-install-recommends linux-image-amd64 mingetty systemd
 apt install -y --no-install-recommends libusbmuxd-tools ncurses-base openssh-client sshpass usbutils usbmuxd
 apt clean
 !
@@ -44,10 +43,16 @@ umount -v rootfs/{dev,sys,proc}
 curl -Lo rootfs/usr/local/bin/checkra1n "$CRBINARY"
 
 # copy files
-cp -av ../inittab rootfs/etc
-cp -av ../scripts/* rootfs/usr/local/bin
+cp -av ../checkn1x.service rootfs/etc/systemd/system/
+cp -av ../checkn1x_welcome rootfs/usr/local/bin/
 chmod -v 755 rootfs/usr/local/bin/*
-ln -sv sbin/init rootfs/init
+
+# systemd config
+cat << ! | chroot rootfs
+systemctl daemon-reload
+systemctl enable checkn1x.service
+sed -i 's/\/sbin\/getty -8 38400/\/sbin\/mingetty --autologin root --noclear/g' /etc/init/tty1.conf
+!
 
 # boot config
 cp -av rootfs/boot/vmlinuz-* iso/boot/vmlinuz
@@ -62,7 +67,7 @@ boot
 !
 
 # build custom initramfs
-# ~570 MB -> ~140 MB
+# ~471 MB -> ~109 MB
 pushd rootfs/
 rm -rfv tmp/* boot/* var/cache/* var/lib/apt/lists/* etc/resolv.conf
 find . | cpio -oH newc | xz -C crc32 --x86 -vz9eT$(nproc --all) > ../iso/boot/initramfs.xz

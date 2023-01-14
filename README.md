@@ -36,11 +36,14 @@ sudo ./build.sh
 ```
 
 ## TODO
-- Port sysvinit to systemd (will auto mount efivarfs)
+- Impl Surface support
 - Shrink size further
 - Speed up build (xz is painfully slow)
 
 ## References
+- https://wiki.ubuntu.com/CustomizeLiveInitrd
+- https://askubuntu.com/questions/168706/how-do-i-auto-login-as-root-into-the-tty-upon-boot
+- https://www.golinuxcloud.com/run-script-at-startup-boot-without-cron-linux/
 - https://unix.stackexchange.com/questions/91620/efi-variables-are-not-supported-on-this-system
 - https://unix.stackexchange.com/questions/693101/reinstall-grub-grub-install-warning-efi-variables-are-not-supported-on-this-s
 - https://askubuntu.com/questions/86483/how-can-i-see-or-change-default-run-level

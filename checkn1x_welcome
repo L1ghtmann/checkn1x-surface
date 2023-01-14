@@ -39,7 +39,8 @@ while ReadKey; do
 			/usr/local/bin/checkra1n
 			;;
 		$'\e'${fnkey[3]})
-			/usr/local/bin/checkn1x_cliprompt
+			read -sp "Press enter to run checkra1n in CLI mode."
+			exec /usr/local/bin/checkra1n -cqv
 			;;
 		$'\e'${fnkey[4]})
 			/usr/sbin/usbmuxd -f

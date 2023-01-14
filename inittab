@@ -1,5 +1,0 @@
-# /etc/inittab
-init::sysinit:/sbin/openrc sysinit --quiet
-def::wait:/sbin/openrc default --quiet
-tty1::wait:/usr/local/bin/checkn1x_welcome
-bail::ctrlaltdel:/sbin/reboot -f
