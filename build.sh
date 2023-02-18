@@ -17,7 +17,7 @@ fi
 # clean up previous attempt
 umount -v work/rootfs/{dev,sys,proc} >/dev/null 2>&1
 rm -rf work
-mkdir -pv work/{rootfs,iso/boot/grub}
+mkdir -pv work/{rootfs,iso/boot/}
 cd work
 
 # build rootfs
@@ -31,13 +31,10 @@ mount -vt proc proc rootfs/proc
 cat << ! | chroot rootfs
 echo "mindebian" > /etc/hostname
 apt update && apt upgrade -y
-apt install -y --no-install-recommends linux-image-amd64 mingetty systemd
+apt install -y --no-install-recommends linux-image-amd64 systemd grub2-common
 apt install -y --no-install-recommends libusbmuxd-tools ncurses-base openssh-client sshpass usbutils usbmuxd
 apt clean
 !
-
-# unmount fs
-umount -v rootfs/{dev,sys,proc}
 
 # fetch resources
 curl -Lo rootfs/usr/local/bin/checkra1n "$CRBINARY"
@@ -49,28 +46,40 @@ chmod -v 755 rootfs/usr/local/bin/*
 
 # systemd config
 cat << ! | chroot rootfs
-systemctl daemon-reload
 systemctl enable checkn1x.service
-sed -i 's/\/sbin\/getty -8 38400/\/sbin\/mingetty --autologin root --noclear/g' /etc/init/tty1.conf
+sed -i 's/--noclear/--noclear -a root/g' /lib/systemd/system/getty@.service
+mkdir -p /boot/grub/
+grub-mkconfig > /boot/grub/grub.cfg
+sed -i 's/GRUB_TIMEOUT=5/GRUB_TIMEOUT=0/g' /usr/share/grub/default/grub
 !
+
+# unmount fs
+umount -v rootfs/{dev,sys,proc}
 
 # boot config
-cp -av rootfs/boot/vmlinuz-* iso/boot/vmlinuz
-cat << ! > iso/boot/grub/grub.cfg
-insmod all_video
-echo 'checkn1x-surface $VERSION by Lightmann'
-echo 'OG script by https://asineth.me'
-echo 'One moment please ....'
-linux /boot/vmlinuz quiet loglevel=3 3
-initrd /boot/initramfs.xz
-boot
-!
+FILE="$(ls rootfs/boot/vmlinuz-*)"
+RAWREF="$(basename $FILE)"
+VER=${RAWREF##*vmlinuz-}
+mv -v rootfs/boot/grub/ iso/boot/
+cp -av rootfs/boot/vmlinuz* rootfs/boot/config* rootfs/boot/System* iso/boot/
+sed -i '$i checkn1x-surface $VERSION by Lightmann\nOG script by https://asineth.me\nOne moment please ....' iso/boot/grub/grub.cfg
+# cat << ! > iso/boot/grub/grub.cfg
+# insmod all_video
+# echo 'checkn1x-surface $VERSION by Lightmann'
+# echo 'OG script by https://asineth.me'
+# echo 'One moment please ....'
+# set root=(hd0,3)
+# # set prefix=(hd0,3)/boot/grub
+# linux /boot/vmlinuz initrd=initramfs.xz quiet loglevel=3 3
+# initrd /boot/initramfs.xz
+# boot
+# !
 
 # build custom initramfs
-# ~471 MB -> ~109 MB
 pushd rootfs/
 rm -rfv tmp/* boot/* var/cache/* var/lib/apt/lists/* etc/resolv.conf
-find . | cpio -oH newc | xz -C crc32 --x86 -vz9eT$(nproc --all) > ../iso/boot/initramfs.xz
+# find . -xtype l -delete -print
+find . | cpio -oH newc | xz -C crc32 --x86 -vz9eT$(nproc --all) > ../iso/boot/initrd.img-$VER
 popd
 
 # iso creation
