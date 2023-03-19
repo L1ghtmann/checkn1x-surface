@@ -13,10 +13,9 @@ Connected USB devices:
 `lsusb | cut -c24-`
 !
 
-# Shoutout SO
 # https://askubuntu.com/a/1126732
 # https://stackoverflow.com/a/67920337
-ReadKey() {
+readKey() {
 	if read -sN1 KEY; then
 		while read -sN1 -t 0.001; do
 			KEY+="${REPLY}"
@@ -30,7 +29,7 @@ for x in {1..24}; do
     fnkey[$x]=${raw#^[}
 done
 
-while ReadKey; do
+while readKey; do
 	case "${KEY}" in
 		$'\e'${fnkey[1]})
 			/usr/local/bin/checkn1x_welcome
@@ -39,7 +38,7 @@ while ReadKey; do
 			/usr/local/bin/checkra1n
 			;;
 		$'\e'${fnkey[3]})
-			/usr/local/bin/checkn1x_cliprompt
+			/usr/local/bin/checkra1n -cqv
 			;;
 		$'\e'${fnkey[4]})
 			/usr/sbin/usbmuxd -f
