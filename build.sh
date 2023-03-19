@@ -12,6 +12,15 @@ if [[ $EUID -ne 0 ]]; then
 elif ! [[ -x $(command -v debootstrap) ]]; then
 	echo "$0: debootstrap not installed. Exiting."
 	exit 2
+elif ! [[ -x $(command -v cpio) ]]; then
+	echo "$0: cpio not installed. Exiting."
+	exit 2
+elif ! [[ -x $(command -v xorriso) ]]; then
+	echo "$0: xz-utils not installed. Exiting."
+	exit 2
+elif ! [[ -x $(command -v grub-mkrescue) ]]; then
+	echo "$0: grub-common2 not installed. Exiting."
+	exit 2
 fi
 
 # clean up previous attempt
@@ -21,19 +30,22 @@ mkdir -pv work/{rootfs,iso/boot/grub}
 cd work
 
 # build rootfs
-# TODO
-#	 https://github.com/linux-surface/surface-aggregator-module/wiki/Testing-and-Installing
-#	 mount efivarfs on /efi/efivars efivarfs ro,nosuid,nodev,noexec 0 0
-#	 apt install -y --no-install-recommends linux-surface-secureboot-mok
-debootstrap --arch=amd64 --variant=minbase bullseye rootfs http://ftp.us.debian.org/debian/
+debootstrap --arch=amd64 --variant=minbase bookworm rootfs http://deb.debian.org/debian/
 mount -vo bind /dev rootfs/dev
 mount -vt sysfs sysfs rootfs/sys
 mount -vt proc proc rootfs/proc
 cat << ! | chroot rootfs
 echo "mindebian" > /etc/hostname
 apt update && apt upgrade -y
-apt install -y --no-install-recommends linux-image-amd64 sysvinit-core openrc
-apt install -y --no-install-recommends libusbmuxd-tools ncurses-base openssh-client sshpass usbutils usbmuxd
+apt install -y --no-install-recommends linux-image-amd64 \
+										sysvinit-core \
+										openrc \
+										libusbmuxd-tools \
+										ncurses-base \
+										openssh-client \
+										sshpass \
+										usbutils \
+										usbmuxd
 apt clean
 !
 

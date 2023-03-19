@@ -26,6 +26,10 @@ Downloads are available under [releases](https://github.com/l1ghtmann/checkn1x-s
 4. Reboot and enter your BIOS's boot menu.
 5. Select the USB drive.
 
+## Notes
+- Will need to disable SecureBoot if you have it enabled in order to boot from the USB.
+  - See https://support.microsoft.com/en-us/surface/how-to-use-surface-uefi-df2c8942-dfa0-859d-4394-95f45eb1c3f9 for more info
+
 ## Building
 * The ``CRBINARY`` variable is the direct link to the build of checkra1n that will be used.
 * Add something to the ``VERSION`` variable if you want to redistribute your image, i.e., ``1.0.6-foo``.
@@ -36,17 +40,5 @@ sudo ./build.sh
 ```
 
 ## TODO
-- Port sysvinit to systemd (will auto mount efivarfs)
-- Shrink size further
-- Speed up build (xz is painfully slow)
-
-## References
-- https://unix.stackexchange.com/questions/91620/efi-variables-are-not-supported-on-this-system
-- https://unix.stackexchange.com/questions/693101/reinstall-grub-grub-install-warning-efi-variables-are-not-supported-on-this-s
-- https://askubuntu.com/questions/86483/how-can-i-see-or-change-default-run-level
-- https://docs.oracle.com/cd/E19683-01/817-3814/6mjcp0qgg/index.html
-- https://docs.oracle.com/cd/E19683-01/817-3814/6mjcp0qgh/index.html
-- https://unix.stackexchange.com/questions/115231/how-to-replace-sysvinit-with-systemd-in-a-debian-based-distribution
-- https://superuser.com/questions/969923/automatic-root-login-in-debian-8-0-console-only
-- https://www.willhaley.com/blog/custom-debian-live-environment/
-- https://www.ibm.com/docs/en/aix/7.2?topic=files-inittab-file
+- Port sysvinit to systemd (will auto-mount efivarfs needed for SecureBoot)
+- Figure out configuration issue(s) with linux-surface kernel freezing on boot

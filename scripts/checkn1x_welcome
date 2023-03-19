@@ -3,17 +3,16 @@ clear
 cat << !
 Welcome to checkn1x-surface.
 
-Alt+F1 : Welcome
-Alt+F2 : Checkra1n
-Alt+F3 : Checkra1n CLI-mode
-Alt+F4 : Usbmuxd (debug)
-Alt+F5 : Shell (debug)
+F1 : Welcome
+F2 : Checkra1n
+F3 : Checkra1n CLI-mode
+F4 : Usbmuxd (debug)
+F5 : Shell (debug)
 
 Connected USB devices:
 `lsusb | cut -c24-`
 !
-
-# Shoutout SO
+sleep 5
 # https://askubuntu.com/a/1126732
 # https://stackoverflow.com/a/67920337
 ReadKey() {
